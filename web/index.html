@@ -307,5 +307,16 @@ h1{letter-spacing:-.065em}
   save();updateTotals();renderList();
 })();
 </script>
+<script type="module">
+import { App } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
+if (Capacitor.isNativePlatform()) {
+  App.addListener('backButton', () => {
+    const event = new CustomEvent('pinkas:back', { cancelable: true });
+    window.dispatchEvent(event);
+    if (!event.defaultPrevented) void App.exitApp();
+  });
+}
+</script>
 </body>
 </html>
