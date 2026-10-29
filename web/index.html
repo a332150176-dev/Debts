@@ -213,6 +213,7 @@ h1{letter-spacing:-.065em}
 <script>
 (() => {
   const STORAGE_KEY='pinkas-debts-v1';
+  const DRAFT_KEY='pinkas-debts-add-draft-v1';
   const initial=[];
   const $=id=>document.getElementById(id);
   const fmt=n=>new Intl.NumberFormat('he-IL',{maximumFractionDigits:2}).format(Number(n)||0);
