@@ -41,6 +41,8 @@ jobs:
         run: npx cap add android
       - name: Sync app with Android
         run: npx cap sync android
+      - name: Enable exact Android reminders
+        run: python3 scripts/patch_android_manifest.py
       - name: Generate custom launcher icon
         run: python3 scripts/generate_android_icons.py android/app/src/main/res
       - name: Compile debug APK
