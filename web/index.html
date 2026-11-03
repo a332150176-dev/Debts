@@ -139,18 +139,31 @@ h1{letter-spacing:-.065em}
 .footer-actions .quiet-btn{min-height:34px;padding:8px 11px;font-size:10px;border-radius:10px}
 @media(max-width:520px){.footer-actions{width:100%}.footer-actions button{flex:1;min-width:0}}
 
+/* Compact ledger layout */
+.brand{font-size:18px;font-weight:900;letter-spacing:-.045em}.brand-mark,.brand small,.hero-intro{display:none!important}
+.topline{padding:8px 0 11px;border:0;border-bottom:1px solid rgba(23,30,42,.08)}.top-meta{gap:7px}
+.debt-list{display:flex;flex-direction:column;gap:8px}
+.debt-row{appearance:none;-webkit-appearance:none;width:100%;min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:right;color:var(--ink);cursor:pointer;padding:12px 15px;background:rgba(255,253,247,.94);border:0;border-radius:15px;box-shadow:0 4px 14px rgba(23,30,42,.05)}
+.debt-row:before{right:0;top:12px;width:4px;height:36px;border-radius:0 5px 5px 0}
+.debt-row .row-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:900}
+.debt-row .row-amount{flex:0 0 auto;font-size:17px;font-weight:900;direction:ltr;white-space:nowrap;letter-spacing:-.035em}.debt-row.closed .row-amount{color:var(--green)}
+.bottom-section{display:block;margin-top:18px}.timeline-panel{padding-top:4px}
+.reminder-box{margin:15px 0;padding:13px;border-radius:14px;background:rgba(233,229,217,.58)}
+.reminder-box label{display:block;font-size:11px;font-weight:900;margin-bottom:7px}.reminder-box input{width:100%;padding:11px;border:1px solid rgba(23,30,42,.1);border-radius:10px;background:var(--white);color:var(--ink)}
+.reminder-box .reminder-actions{display:flex;gap:8px;margin-top:9px}.reminder-box button{flex:1;min-height:39px;border:0;border-radius:10px;padding:8px;font-size:11px;font-weight:900}
+.reminder-save{background:var(--ink);color:white}.reminder-clear{background:var(--paper2);color:var(--ink)}
+.detail-actions{display:flex;gap:8px;margin-top:15px}.detail-actions button{flex:1;min-height:42px;border:0;border-radius:11px;padding:9px;font-size:11px;font-weight:900}
+.detail-delete{background:#f3d1c8;color:#8f3929}.detail-pay{background:var(--ink);color:white}
+@media(max-width:520px){.app{padding-top:8px}.brand{font-size:16px}.topline{padding-bottom:9px}.top-meta .date-label{display:none}.overview{margin-top:10px}.debt-row{min-height:58px;padding:11px 13px}.debt-row .row-name{font-size:13px}.debt-row .row-amount{font-size:16px}}
+@media(max-width:360px){.brand{font-size:15px}.debt-row .row-name{font-size:12px}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="topline">
-    <div class="brand"><div class="brand-mark">פ׳</div><div>פנקס <small>PERSONAL LEDGER / 02</small></div></div>
+    <div class="brand">פנקס – ניהול חובות</div>
     <div class="top-meta"><span class="date-label" id="todayLabel"></span><span class="save-pill"><i></i> נשמר במכשיר</span></div>
   </header>
-  <section class="hero-intro">
-    <div><div class="eyebrow">הסדר מתחיל ברישום</div><h1>הכול רשום.<br><em>הראש פנוי.</em></h1><p class="intro-copy">חובות פתוחים, החזרים והיסטוריה — במקום אחד מסודר, בלי ללכת לאיבוד בפרטים הקטנים.</p></div>
-    <button class="primary-btn add-top" id="addTop"><span style="font-size:18px;line-height:0">＋</span> חוב חדש</button>
-  </section>
   <section class="overview" aria-label="סיכום מצב כספי">
     <div class="balance-card">
       <div class="card-kicker"><span>01 / תמונת מצב</span><span class="tiny-stamp">היתרה הפתוחה</span></div>
@@ -175,10 +188,7 @@ h1{letter-spacing:-.065em}
     <div class="debt-list" id="debtList"></div>
     <div class="empty" id="emptyState"><div class="empty-mark">—</div><strong id="emptyTitle">הפנקס נקי לעכשיו.</strong><p id="emptyCopy">אין כאן חובות פתוחים. אפשר להוסיף רשומה חדשה בלחיצה אחת.</p><button class="primary-btn" id="emptyAdd">＋ הוספת חוב</button></div>
   </main>
-  <section class="bottom-section">
-    <div class="timeline-panel"><div class="timeline-head"><h3>על ציר הזמן</h3><span class="micro">מועדים קרובים</span></div><div id="timeline"></div></div>
-    <div class="note-panel"><div class="note-kicker">הערה בשולי הפנקס / 01</div><p id="tipText">כשנרשם כל החזר בנפרד, היתרה נשארת מדויקת גם אחרי חודשים.</p><button id="tipNext">טיפ נוסף ↙</button></div>
-  </section>
+  <section class="timeline-panel"><div class="timeline-head"><h3>על ציר הזמן</h3><span class="micro">מועדים קרובים</span></div><div id="timeline"></div></section>
   <footer class="footer"><span><strong>פנקס.</strong> סדר קטן, שקט גדול.</span><span>שמירה מקומית · ללא חשבון וללא שרת</span><div class="footer-actions"><button class="quiet-btn" type="button" id="exportBackup">ייצוא גיבוי</button><button class="quiet-btn" type="button" id="importBackup">שחזור גיבוי</button><input id="backupFile" type="file" accept="application/json,.json" hidden></div></footer>
 </div>
 <nav class="mobile-dock" aria-label="ניווט מהיר"><button class="dock-btn active" data-view="active">◷ <span>חובות פתוחים</span></button><button class="dock-btn dock-add" id="dockAdd"><b>＋</b><span>חוב חדש</span></button><button class="dock-btn" data-view="history">✓ <span>היסטוריה</span></button></nav>
@@ -191,8 +201,9 @@ h1{letter-spacing:-.065em}
       <div class="field"><label for="directionInput">סוג ההתחשבנות</label><select id="directionInput"><option value="out">אני חייב לו</option><option value="in">הוא חייב לי</option></select></div>
       <div class="field"><label for="amountInput">סכום (₪)</label><input id="amountInput" required type="number" min="0.01" step="0.01" placeholder="0"></div>
       <div class="field"><label for="paidInput">כבר שולם (₪)</label><input id="paidInput" type="number" min="0" step="0.01" value="0"></div>
-      <div class="field"><label for="dateInput">מועד פירעון</label><input id="dateInput" type="date" required></div>
-      <div class="field full"><label for="purposeInput">מטרה / סיבה</label><input id="purposeInput" maxlength="120" placeholder="למשל: הלוואה, קנייה או הוצאה משותפת"></div>
+      <div class="field"><label for="dateInput">מועד פירעון</label><input id="dateInput" type="date"></div>
+      <div class="field full"><label for="purposeInput">מטרה / סיבה (לא חובה)</label><input id="purposeInput" maxlength="120" placeholder="למשל: הלוואה, קנייה או הוצאה משותפת"></div>
+      <div class="field full"><label for="reminderInput">תזכורת (לא חובה)</label><input id="reminderInput" type="datetime-local"></div>
       <div class="field full"><label for="notesInput">הערות (לא חובה)</label><textarea id="notesInput" rows="2" maxlength="300" placeholder="פרטים שתרצה לזכור"></textarea></div>
     </div>
     <div class="form-actions"><button class="primary-btn" type="submit">שמירת הרשומה ↙</button><button class="quiet-btn" type="button" data-close="addBackdrop">יציאה — נשמר אוטומטית</button></div>
@@ -224,8 +235,7 @@ h1{letter-spacing:-.065em}
   try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));debts=Array.isArray(saved)?saved:initial;}catch{debts=initial;}
   // Migrate old prototype data safely, and ensure fully repaid records have a closure date.
   debts=debts.map(d=>({...d,payments:Array.isArray(d.payments)?d.payments:[],tone:d.tone||'yellow',...(Number(d.paid)>=Number(d.amount)&&!d.completedAt?{completedAt:new Date().toISOString()}: {})}));
-  let view='active',filter='all',payingId=null,tipIndex=0,toastTimer;
-  const tips=['כשנרשם כל החזר בנפרד, היתרה נשארת מדויקת גם אחרי חודשים.','כדאי לכתוב מטרה קצרה לכל חוב — כך קל לזכור למה נוצר.','גיבוי תקופתי חשוב במיוחד לפני החלפת מכשיר.','כשמשנים תאריך פירעון, כדאי לעדכן אותו גם בפנקס.'];
+  let view='active',filter='all',payingId=null,toastTimer;
   function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(debts));}catch{showToast('הדפדפן לא אפשר שמירה מקומית.');}}
   function balance(d){return Math.max(0,Number(d.amount)-Number(d.paid));}
   function isClosed(d){return balance(d)<=0.005;}
@@ -235,49 +245,79 @@ h1{letter-spacing:-.065em}
   function safeDate(s){const d=dateOnly(s);return d?d.toLocaleDateString('he-IL',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';}
   function escapeHTML(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function updateTotals(){const active=debts.filter(d=>!isClosed(d));const out=active.filter(d=>d.direction==='out').reduce((s,d)=>s+balance(d),0);const incoming=active.filter(d=>d.direction==='in').reduce((s,d)=>s+balance(d),0);const late=active.filter(isLate);$('oweTotal').textContent=fmt(out);$('owedToMe').textContent=fmt(incoming);$('netTotal').textContent=fmt(Math.abs(out-incoming));$('openCount').textContent=String(active.length).padStart(2,'0');$('lateCount').textContent=String(late.length).padStart(2,'0');$('historyCount').textContent=String(debts.filter(isClosed).length).padStart(2,'0');const next=active.slice().filter(d=>dateOnly(d.date)).sort((a,b)=>dateOnly(a.date)-dateOnly(b.date))[0];$('nextDue').textContent=next?dueLabel(next):'—';}
-  function rowMarkup(d){const closed=isClosed(d),bal=balance(d),late=isLate(d),progress=closed?100:Math.min(100,(Number(d.paid)/Math.max(1,Number(d.amount)))*100);const dir=d.direction==='out'?'אני חייב':'חייבים לי';const due=closed?`נסגר ${safeDate(d.completedAt?d.completedAt.slice(0,10):d.date)}`:dueLabel(d);const pays=Array.isArray(d.payments)?d.payments:[];return `<article class="debt-card ${d.direction==='in'?'incoming':''} ${closed?'closed':''}" data-id="${escapeHTML(d.id)}">
-    <div class="debt-head"><div class="person"><div class="avatar ${escapeHTML(d.tone||'yellow')}">${escapeHTML(initials(d.name))}</div><div class="person-copy"><div class="person-name">${escapeHTML(d.name)}</div><div class="person-purpose">${escapeHTML(d.purpose||'ללא מטרה מוגדרת')}</div></div></div><button class="more-btn" data-action="details" data-id="${escapeHTML(d.id)}" title="פרטי החוב" aria-label="פרטי החוב של ${escapeHTML(d.name)}">⋯</button></div>
-    <div class="money-line"><div class="money-main">₪ ${fmt(closed?d.amount:bal)} <small>${closed?'נסגר':'נותר'}</small></div><div class="money-original">מתוך ₪ ${fmt(d.amount)}</div></div><div class="progress-track" aria-label="שולם ${Math.round(progress)} אחוז"><div class="progress-fill" style="width:${progress}%"></div></div>
-    <div class="debt-meta"><span class="due-tag ${late?'late':''}">${closed?'✓ '+due:escapeHTML(due)}</span><span class="direction-tag">${dir}</span></div>
-    ${closed?`<div class="history-summary">שולם במלואו <strong>₪ ${fmt(d.amount)}</strong>${pays.length?` · ${pays.length} ${pays.length===1?'החזר':'החזרים'}`:''}</div>`:`<div class="card-actions"><button class="pay-btn" data-action="pay" data-id="${escapeHTML(d.id)}">＋ רישום החזר</button><button class="details-btn" data-action="details" data-id="${escapeHTML(d.id)}" aria-label="פרטים נוספים">↙</button></div>`}
-  </article>`;}
+  function rowMarkup(d){
+    const closed=isClosed(d),amount=closed?Number(d.amount):balance(d);
+    return `<button type="button" class="debt-card debt-row ${d.direction==='in'?'incoming':''} ${closed?'closed':''}" data-action="details" data-id="${escapeHTML(d.id)}" aria-label="פתיחת פרטי החוב של ${escapeHTML(d.name)}"><span class="row-name">${escapeHTML(d.name)}</span><strong class="row-amount">₪ ${fmt(amount)}</strong></button>`;
+  }
   function renderList(){const q=$('searchInput').value.trim().toLocaleLowerCase('he');let list=debts.filter(d=>view==='history'?isClosed(d):!isClosed(d));if(view==='active'&&(filter==='out'||filter==='in'))list=list.filter(d=>d.direction===filter);if(view==='active'&&filter==='late')list=list.filter(isLate);if(q)list=list.filter(d=>(d.name+' '+d.purpose+' '+(d.notes||'')).toLocaleLowerCase('he').includes(q));list.sort((a,b)=>{if(view==='history')return new Date(b.completedAt||b.date)-new Date(a.completedAt||a.date);if(isLate(a)!==isLate(b))return isLate(a)?-1:1;return (dateOnly(a.date)||new Date(8640000000000000))-(dateOnly(b.date)||new Date(8640000000000000));});$('debtList').innerHTML=list.map(rowMarkup).join('');$('emptyState').style.display=list.length?'none':'block';$('visibleCount').textContent=String(list.length).padStart(2,'0');$('listTitle').textContent=view==='history'?'היסטוריית חובות':'החובות הפתוחים';$('listHint').textContent=view==='history'?'רשומות ששולמו ונסגרו':'רשומות שעדיין בטיפול';$('filters').style.display=view==='history'?'none':'flex';$('emptyTitle').textContent=view==='history'?'עדיין אין היסטוריה.':'הפנקס נקי לעכשיו.';$('emptyCopy').textContent=view==='history'?'ברגע שחוב ישולם במלואו, הוא יופיע כאן אוטומטית.':'אין כאן חובות פתוחים. אפשר להוסיף רשומה חדשה בלחיצה אחת.';$('emptyAdd').style.display=view==='history'?'none':'inline-flex';document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));renderTimeline();}
   function renderTimeline(){const upcoming=debts.filter(d=>!isClosed(d)&&dateOnly(d.date)).sort((a,b)=>dateOnly(a.date)-dateOnly(b.date)).slice(0,3);$('timeline').innerHTML=upcoming.length?upcoming.map(d=>`<div class="timeline-item ${isLate(d)?'late':''}"><div class="timeline-date">${escapeHTML(dateOnly(d.date).toLocaleDateString('he-IL',{day:'2-digit',month:'short'}))}</div><div class="timeline-dot"></div><div class="timeline-copy"><strong>${escapeHTML(d.name)} · ₪ ${fmt(balance(d))}</strong>${isLate(d)?'מועד שעבר — כדאי לעדכן':'מועד לפירעון'}<span>${escapeHTML(d.purpose||'ללא מטרה')}</span></div></div>`).join(''):'<div class="micro" style="padding:10px 0">אין כרגע תשלומים פתוחים עם תאריך.</div>';}
   function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2600);}
-  function readAddForm(){return {name:$('personInput').value.trim(),direction:$('directionInput').value,amount:$('amountInput').value,paid:$('paidInput').value||'0',date:$('dateInput').value,purpose:$('purposeInput').value.trim(),notes:$('notesInput').value.trim()};}
-  function addFormHasContent(d){return !!(d.name||d.amount||d.date||Number(d.paid)>0||d.purpose||d.notes);}
+  function readAddForm(){return {name:$('personInput').value.trim(),direction:$('directionInput').value,amount:$('amountInput').value,paid:$('paidInput').value||'0',date:$('dateInput').value,purpose:$('purposeInput').value.trim(),reminderAt:$('reminderInput').value,notes:$('notesInput').value.trim()};}
+  function addFormHasContent(d){return !!(d.name||d.amount||d.date||Number(d.paid)>0||d.purpose||d.reminderAt||d.notes);}
   function persistAddDraft(d){try{if(addFormHasContent(d))localStorage.setItem(DRAFT_KEY,JSON.stringify(d));else localStorage.removeItem(DRAFT_KEY);}catch{}}
-  function restoreAddDraft(){try{const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');if(!d||typeof d!=='object')return;$('personInput').value=d.name||'';$('directionInput').value=d.direction==='in'?'in':'out';$('amountInput').value=d.amount||'';$('paidInput').value=d.paid??'0';$('dateInput').value=d.date||'';$('purposeInput').value=d.purpose||'';$('notesInput').value=d.notes||'';}catch{}}
-  function resetAddForm(){$('debtForm').reset();$('paidInput').value='0';try{localStorage.removeItem(DRAFT_KEY);}catch{}}
-  function addDebtFromForm(data){const amount=Number(data.amount),paid=Number(data.paid||0);if(!data.name||!data.date||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||paid>amount)return null;const d={id:Date.now(),name:data.name,direction:data.direction,amount,paid,date:data.date,purpose:data.purpose,notes:data.notes,tone:['coral','blue','green','yellow'][debts.length%4],payments:[]};if(paid>0)d.payments.push({amount:paid,date:new Date().toISOString().slice(0,10),note:'סכום ששולם בעת יצירת הרשומה'});if(balance(d)<=0)d.completedAt=new Date().toISOString();debts.push(d);save();updateTotals();try{localStorage.removeItem(DRAFT_KEY);}catch{}return d;}
-  function autoSaveAddForm(){const data=readAddForm();if(!addFormHasContent(data)){try{localStorage.removeItem(DRAFT_KEY);}catch{}return;}const d=addDebtFromForm(data);if(d){resetAddForm();renderList();showToast('הרשומה נשמרה אוטומטית גם בלי לחיצה על שמירה.');}else{persistAddDraft(data);showToast('הפרטים נשמרו כטיוטה ויחזרו כשתפתח חוב חדש.');}}
+  function restoreAddDraft(){try{const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');if(!d||typeof d!=='object')return;$('personInput').value=d.name||'';$('directionInput').value=d.direction==='in'?'in':'out';$('amountInput').value=d.amount||'';$('paidInput').value=d.paid??'0';$('dateInput').value=d.date||'';$('purposeInput').value=d.purpose||'';$('reminderInput').value=d.reminderAt||'';$('notesInput').value=d.notes||'';}catch{}}
+  function resetAddForm(){$('debtForm').reset();$('paidInput').value='0';$('reminderInput').value='';try{localStorage.removeItem(DRAFT_KEY);}catch{}}
+  function addDebtFromForm(data){const amount=Number(data.amount),paid=Number(data.paid||0),reminderDate=data.reminderAt?new Date(data.reminderAt):null;if(!data.name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||paid>amount||(data.reminderAt&&(!reminderDate||Number.isNaN(reminderDate.getTime())||reminderDate<=new Date())))return null;const d={id:Date.now(),name:data.name,direction:data.direction,amount,paid,date:data.date||'',purpose:data.purpose,notes:data.notes,reminderAt:reminderDate?reminderDate.toISOString():'',tone:['coral','blue','green','yellow'][debts.length%4],payments:[]};if(paid>0)d.payments.push({amount:paid,date:new Date().toISOString().slice(0,10),note:'סכום ששולם בעת יצירת הרשומה'});if(balance(d)<=0)d.completedAt=new Date().toISOString();debts.push(d);save();updateTotals();try{localStorage.removeItem(DRAFT_KEY);}catch{}return d;}
+  function autoSaveAddForm(){const data=readAddForm();if(!addFormHasContent(data)){try{localStorage.removeItem(DRAFT_KEY);}catch{}return;}const d=addDebtFromForm(data);if(d){resetAddForm();renderList();if(d.reminderAt)void scheduleNativeReminder(d).catch(()=>showToast('החוב נשמר, אך התזכורת לא הופעלה. בדוק הרשאות התראות.'));showToast('הרשומה נשמרה אוטומטית גם בלי לחיצה על שמירה.');}else{persistAddDraft(data);showToast('הפרטים נשמרו כטיוטה ויחזרו כשתפתח חוב חדש.');}}
   function openModal(id){if(id==='addBackdrop')restoreAddDraft();$(id).classList.add('open');document.body.style.overflow='hidden';const focus=$(id).querySelector('input:not([type=hidden])');setTimeout(()=>focus?.focus(),80);}
   function closeModal(id){if(id==='addBackdrop'&&$(id).classList.contains('open'))autoSaveAddForm();$(id).classList.remove('open');if(!document.querySelector('.modal-backdrop.open'))document.body.style.overflow='';}
   function setView(next){view=next;filter='all';document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));$('searchInput').value='';renderList();$('ledger').scrollIntoView({behavior:'smooth',block:'start'});}
-  $('addTop').addEventListener('click',()=>openModal('addBackdrop'));$('dockAdd').addEventListener('click',()=>openModal('addBackdrop'));$('emptyAdd').addEventListener('click',()=>openModal('addBackdrop'));
+  $('addTop')?.addEventListener('click',()=>openModal('addBackdrop'));$('dockAdd').addEventListener('click',()=>openModal('addBackdrop'));$('emptyAdd').addEventListener('click',()=>openModal('addBackdrop'));
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
   document.querySelectorAll('.modal-backdrop').forEach(back=>back.addEventListener('click',e=>{if(e.target===back)closeModal(back.id);}));
   document.addEventListener('keydown',e=>{if(e.key==='Escape'){const list=[...document.querySelectorAll('.modal-backdrop.open')];if(list.length)closeModal(list[list.length-1].id);}});
   window.addEventListener('pinkas:back',e=>{const list=[...document.querySelectorAll('.modal-backdrop.open')];if(list.length){closeModal(list[list.length-1].id);e.preventDefault();return;}if(view==='history'){setView('active');e.preventDefault();}});
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
-  ['personInput','directionInput','amountInput','paidInput','dateInput','purposeInput','notesInput'].forEach(id=>{['input','change'].forEach(evt=>$(id).addEventListener(evt,()=>persistAddDraft(readAddForm())));});
-  $('debtForm').addEventListener('submit',e=>{e.preventDefault();const data=readAddForm(),amount=Number(data.amount),paid=Number(data.paid||0);if(!data.name||!data.date||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||paid>amount){showToast('בדוק את השם, התאריך והסכומים שהוזנו.');return;}const d=addDebtFromForm(data);if(!d){showToast('לא הצלחנו לשמור את הרשומה. בדוק את הפרטים.');return;}resetAddForm();closeModal('addBackdrop');setView(balance(d)<=0?'history':'active');showToast(balance(d)<=0?'החוב שולם במלואו ונוסף להיסטוריה.':'החוב נוסף לפנקס.');});
+  ['personInput','directionInput','amountInput','paidInput','dateInput','purposeInput','reminderInput','notesInput'].forEach(id=>{['input','change'].forEach(evt=>$(id).addEventListener(evt,()=>persistAddDraft(readAddForm())));});
+  $('debtForm').addEventListener('submit',e=>{e.preventDefault();const data=readAddForm(),amount=Number(data.amount),paid=Number(data.paid||0);if(!data.name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||paid>amount||(data.reminderAt&&new Date(data.reminderAt)<=new Date())){showToast('יש להזין שם וסכום תקינים; תזכורת, אם נבחרה, חייבת להיות בעתיד.');return;}const d=addDebtFromForm(data);if(!d){showToast('לא הצלחנו לשמור את הרשומה. בדוק את הפרטים.');return;}resetAddForm();closeModal('addBackdrop');setView(balance(d)<=0?'history':'active');if(d.reminderAt)void scheduleNativeReminder(d).catch(()=>showToast('החוב נשמר, אך התזכורת לא הופעלה. בדוק הרשאות התראות.'));showToast(balance(d)<=0?'החוב שולם במלואו ונוסף להיסטוריה.':'החוב נוסף לפנקס.');});
   document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===b));renderList();}));
   $('searchInput').addEventListener('input',renderList);
-  $('debtList').addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;const d=debts.find(x=>String(x.id)===b.dataset.id);if(!d)return;if(b.dataset.action==='pay'){payingId=d.id;$('paymentIntro').textContent=`${d.name} · יתרה פתוחה: ₪ ${fmt(balance(d))}. ההחזר יירשם בהיסטוריה של החוב.`;$('paymentAmount').max=balance(d);$('paymentAmount').value='';$('paymentNote').value='';openModal('payBackdrop');}else if(b.dataset.action==='details'){const paid=Number(d.paid)||0;const payments=Array.isArray(d.payments)?d.payments:[];$('detailsTitle').textContent=d.name;$('detailsBody').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px"><div class="stat-card"><div class="stat-top">סכום מקורי</div><div class="stat-value">₪ ${fmt(d.amount)}</div></div><div class="stat-card"><div class="stat-top">${isClosed(d)?'סטטוס':'יתרה'}</div><div class="stat-value">${isClosed(d)?'נסגר':'₪ '+fmt(balance(d))}</div></div></div><p style="font-size:12px;line-height:1.7;margin:10px 0"><b>מטרה:</b> ${escapeHTML(d.purpose||'לא הוגדרה')}<br><b>סוג:</b> ${d.direction==='out'?'אתה חייב לאדם זה':'אדם זה חייב לך'}<br><b>מועד פירעון:</b> ${safeDate(d.date)}<br><b>שולם עד כה:</b> ₪ ${fmt(paid)}<br><b>הערות:</b> ${escapeHTML(d.notes||'אין הערות')}</p><div style="border-top:1px solid var(--line);padding-top:10px;font-weight:900;font-size:11px">היסטוריית החזרים</div>${payments.length?payments.map(p=>`<div style="display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:9px 0;font-size:11px"><span>${escapeHTML(p.note||'החזר') } · ${safeDate(p.date)}</span><b>₪ ${fmt(p.amount)}</b></div>`).join(''):'<p style="font-size:11px;color:var(--muted)">עדיין לא נרשמו החזרים.</p>'}${isClosed(d)?`<p style="font-size:10px;color:var(--green);font-weight:900;margin-top:12px">✓ החוב נסגר ועבר להיסטוריית החובות.</p>`:''}`;openModal('detailsBackdrop');}});
-  $('paymentForm').addEventListener('submit',e=>{e.preventDefault();const d=debts.find(x=>x.id===payingId);if(!d)return;const rest=balance(d),num=Number($('paymentAmount').value);if(!Number.isFinite(num)||num<=0||num>rest+0.005){showToast('הזן סכום חיובי שאינו גדול מהיתרה.');return;}d.paid=Math.min(Number(d.amount),Number(d.paid)+num);if(!Array.isArray(d.payments))d.payments=[];d.payments.push({amount:num,date:new Date().toISOString().slice(0,10),note:$('paymentNote').value.trim()});const closed=isClosed(d);if(closed)d.completedAt=new Date().toISOString();save();updateTotals();closeModal('payBackdrop');renderList();showToast(closed?'החוב שולם במלואו והועבר להיסטוריית חובות.':'ההחזר נשמר והיתרה עודכנה.');if(closed&&view==='active')showToast('החוב נסגר ועבר להיסטוריית חובות.');payingId=null;});
-  $('tipNext').addEventListener('click',()=>{tipIndex=(tipIndex+1)%tips.length;$('tipText').textContent=tips[tipIndex];});
-
-  $('exportBackup').addEventListener('click',()=>{
+  function localDateTimeValue(value){if(!value)return '';const d=new Date(value);if(Number.isNaN(d.getTime()))return '';return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}
+  function openDebtDetails(d){
+    const paid=Number(d.paid)||0,payments=Array.isArray(d.payments)?d.payments:[];
+    $('detailsTitle').textContent=d.name;
+    $('detailsBody').innerHTML=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px"><div class="stat-card"><div class="stat-top">סכום מקורי</div><div class="stat-value">₪ ${fmt(d.amount)}</div></div><div class="stat-card"><div class="stat-top">${isClosed(d)?'סטטוס':'יתרה'}</div><div class="stat-value">${isClosed(d)?'נסגר':'₪ '+fmt(balance(d))}</div></div></div>
+    <p style="font-size:12px;line-height:1.7;margin:10px 0"><b>סוג:</b> ${d.direction==='out'?'אתה חייב לאדם זה':'אדם זה חייב לך'}<br><b>מועד פירעון:</b> ${safeDate(d.date)}<br><b>שולם עד כה:</b> ₪ ${fmt(paid)}<br><b>מטרה:</b> ${escapeHTML(d.purpose||'לא הוגדרה')}<br><b>הערות:</b> ${escapeHTML(d.notes||'אין הערות')}</p>
+    <div class="reminder-box"><label for="detailsReminder">תזכורת לחוב</label><input id="detailsReminder" type="datetime-local" value="${localDateTimeValue(d.reminderAt)}"><div class="reminder-actions"><button type="button" class="reminder-save" data-detail-action="save-reminder" data-id="${escapeHTML(d.id)}">שמירת תזכורת</button><button type="button" class="reminder-clear" data-detail-action="clear-reminder" data-id="${escapeHTML(d.id)}">ביטול תזכורת</button></div><div class="micro" style="margin-top:7px">${d.reminderAt?'תזכורת מוגדרת ל־'+new Date(d.reminderAt).toLocaleString('he-IL'):'אין תזכורת מוגדרת'}</div></div>
+    <div style="border-top:1px solid var(--line);padding-top:10px;font-weight:900;font-size:11px">היסטוריית החזרים</div>
+    ${payments.length?payments.map(p=>`<div style="display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:9px 0;font-size:11px"><span>${escapeHTML(p.note||'החזר')} · ${safeDate(p.date)}</span><b>₪ ${fmt(p.amount)}</b></div>`).join(''):'<p style="font-size:11px;color:var(--muted)">עדיין לא נרשמו החזרים.</p>'}
+    ${isClosed(d)?'<p style="font-size:10px;color:var(--green);font-weight:900;margin-top:12px">✓ החוב נסגר ועבר להיסטוריית החובות.</p>':''}
+    <div class="detail-actions">${isClosed(d)?'':`<button type="button" class="detail-pay" data-detail-action="pay" data-id="${escapeHTML(d.id)}">＋ רישום החזר</button>`}<button type="button" class="detail-delete" data-detail-action="delete" data-id="${escapeHTML(d.id)}">מחיקת חוב</button></div>`;
+    openModal('detailsBackdrop');
+  }
+  function showPaymentFor(d){payingId=d.id;$('paymentIntro').textContent=`${d.name} · יתרה פתוחה: ₪ ${fmt(balance(d))}. ההחזר יירשם בהיסטוריה של החוב.`;$('paymentAmount').max=balance(d);$('paymentAmount').value='';$('paymentNote').value='';openModal('payBackdrop');}
+  async function scheduleNativeReminder(d){if(!d.reminderAt||!window.PinkasNative?.isNative())return;await window.pinkasNativeReady;await window.PinkasNative.scheduleReminder({id:d.id,name:d.name,reminderAt:d.reminderAt});}
+  $('debtList').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const d=debts.find(x=>String(x.id)===b.dataset.id);if(d&&b.dataset.action==='details')openDebtDetails(d);});
+  $('detailsBody').addEventListener('click',async e=>{
+    const b=e.target.closest('[data-detail-action]');if(!b)return;const d=debts.find(x=>String(x.id)===b.dataset.id);if(!d)return;const action=b.dataset.detailAction;
+    if(action==='pay'){showPaymentFor(d);return;}
+    if(action==='delete'){
+      if(!confirm(`למחוק את החוב של ${d.name}? לא ניתן לשחזר את הרשומה לאחר המחיקה.`))return;
+      debts=debts.filter(x=>String(x.id)!==String(d.id));save();updateTotals();renderList();closeModal('detailsBackdrop');
+      if(window.PinkasNative?.isNative()){try{await window.pinkasNativeReady;await window.PinkasNative.cancelReminder(d.id);}catch{}}
+      showToast('החוב נמחק.');return;
+    }
+    if(action==='save-reminder'){
+      const raw=$('detailsReminder').value,dt=new Date(raw);if(!raw||Number.isNaN(dt.getTime())||dt<=new Date()){showToast('יש לבחור מועד עתידי לתזכורת.');return;}
+      d.reminderAt=dt.toISOString();save();
+      try{await scheduleNativeReminder(d);openDebtDetails(d);showToast('התזכורת נשמרה.');}
+      catch{openDebtDetails(d);showToast('התזכורת נשמרה ברשומה, אך לא הופעלה. יש לאשר התראות והרשאת שעון מעורר בהגדרות Android.');}
+      return;
+    }
+    if(action==='clear-reminder'){
+      delete d.reminderAt;save();if(window.PinkasNative?.isNative()){try{await window.pinkasNativeReady;await window.PinkasNative.cancelReminder(d.id);}catch{}}
+      openDebtDetails(d);showToast('התזכורת בוטלה.');
+    }
+  });
+  $('paymentForm').addEventListener('submit',e=>{e.preventDefault();const d=debts.find(x=>x.id===payingId);if(!d)return;const rest=balance(d),num=Number($('paymentAmount').value);if(!Number.isFinite(num)||num<=0||num>rest+0.005){showToast('הזן סכום חיובי שאינו גדול מהיתרה.');return;}d.paid=Math.min(Number(d.amount),Number(d.paid)+num);if(!Array.isArray(d.payments))d.payments=[];d.payments.push({amount:num,date:new Date().toISOString().slice(0,10),note:$('paymentNote').value.trim()});const closed=isClosed(d);if(closed){d.completedAt=new Date().toISOString();delete d.reminderAt;if(window.PinkasNative?.isNative())void window.pinkasNativeReady.then(()=>window.PinkasNative.cancelReminder(d.id)).catch(()=>{});}save();updateTotals();closeModal('payBackdrop');renderList();showToast(closed?'החוב שולם במלואו והועבר להיסטוריית חובות.':'ההחזר נשמר והיתרה עודכנה.');if(closed&&view==='active')showToast('החוב נסגר ועבר להיסטוריית חובות.');payingId=null;});
+  $('exportBackup').addEventListener('click',async()=>{
     try{
-      const payload={format:'pinkas-debts-backup',version:1,exportedAt:new Date().toISOString(),debts};
-      const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-      const url=URL.createObjectURL(blob);const a=document.createElement('a');
-      a.href=url;a.download='pinkas-backup-'+new Date().toISOString().slice(0,10)+'.json';
-      document.body.appendChild(a);a.click();a.remove();
-      setTimeout(()=>URL.revokeObjectURL(url),1500);
-      showToast('קובץ הגיבוי נוצר. שמור אותו במקום בטוח.');
-    }catch{showToast('לא הצלחנו ליצור קובץ גיבוי.');}
+      const payload={format:'pinkas-debts-backup',version:1,exportedAt:new Date().toISOString(),debts},contents=JSON.stringify(payload,null,2),filename='pinkas-backup-'+new Date().toISOString().slice(0,10)+'.json';
+      if(window.PinkasNative?.isNative()){await window.pinkasNativeReady;await window.PinkasNative.shareBackup(contents,filename);showToast('בחר היכן לשמור או עם מי לשתף את הגיבוי.');return;}
+      const file=new File([contents],'pinkas-backup.json',{type:'application/json'});
+      if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({title:'גיבוי פנקס',files:[file]});showToast('הגיבוי נשלח לשיתוף.');}
+      else{const blob=new Blob([contents],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);showToast('קובץ הגיבוי נוצר.');}
+    }catch(error){if(error?.name!=='AbortError')showToast('לא הצלחנו לשתף את קובץ הגיבוי. נסה שוב.');}
   });
   $('importBackup').addEventListener('click',()=>$('backupFile').click());
   $('backupFile').addEventListener('change',async e=>{
@@ -292,12 +332,14 @@ h1{letter-spacing:-.065em}
         return {...d,id:d.id??(Date.now()+i),name:d.name.trim(),direction:d.direction==='in'?'in':'out',amount,paid,
           date:typeof d.date==='string'?d.date:'',purpose:String(d.purpose||''),notes:String(d.notes||''),
           tone:['coral','blue','green','yellow'].includes(d.tone)?d.tone:'yellow',
+          reminderAt:typeof d.reminderAt==='string'&&Number.isFinite(new Date(d.reminderAt).getTime())?new Date(d.reminderAt).toISOString():'',
           payments:Array.isArray(d.payments)?d.payments.filter(p=>p&&Number.isFinite(Number(p.amount))&&Number(p.amount)>0).map(p=>({amount:Number(p.amount),date:String(p.date||''),note:String(p.note||'')})):[],
           ...(paid>=amount?{completedAt:d.completedAt||new Date().toISOString()}:{})
         };
       });
       if(!confirm('שחזור הגיבוי יחליף את כל הרשומות הקיימות באפליקציה. להמשיך?'))return;
       debts=restored;save();updateTotals();setView('active');
+      if(window.PinkasNative?.isNative())void window.pinkasNativeReady.then(async()=>{await window.PinkasNative.cancelAllReminders();for(const d of debts.filter(x=>x.reminderAt&&!isClosed(x)))await window.PinkasNative.scheduleReminder({id:d.id,name:d.name,reminderAt:d.reminderAt});}).catch(()=>{});
       showToast('הגיבוי שוחזר בהצלחה.');
     }catch{showToast('קובץ הגיבוי אינו תקין או שאינו מתאים לפנקס.');}
     finally{e.target.value='';}
@@ -310,13 +352,35 @@ h1{letter-spacing:-.065em}
 <script type="module">
 import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
-if (Capacitor.isNativePlatform()) {
-  App.addListener('backButton', () => {
-    const event = new CustomEvent('pinkas:back', { cancelable: true });
-    window.dispatchEvent(event);
-    if (!event.defaultPrevented) void App.exitApp();
-  });
+import { LocalNotifications } from '@capacitor/local-notifications';
+import { Share } from '@capacitor/share';
+import { Directory, Filesystem } from '@capacitor/filesystem';
+const native=Capacitor.isNativePlatform();
+function notificationId(raw){const value=String(raw);let hash=2166136261;for(let i=0;i<value.length;i++){hash^=value.charCodeAt(i);hash=Math.imul(hash,16777619);}return (hash>>>0)%2000000000+1;}
+async function requestNotificationAccess(){
+  let permission=await LocalNotifications.checkPermissions();
+  if(permission.display!=='granted')permission=await LocalNotifications.requestPermissions();
+  if(permission.display!=='granted')throw new Error('notification-permission-denied');
+  if(Capacitor.getPlatform()==='android'){try{await LocalNotifications.createChannel({id:'pinkas-reminders',name:'תזכורות חובות',description:'תזכורות למועדי חובות בפנקס',importance:5,vibration:true});}catch{}}
 }
+const services={
+  isNative:()=>native,
+  async scheduleReminder(debt){
+    if(!native)return;const at=new Date(debt.reminderAt);if(Number.isNaN(at.getTime())||at<=new Date())throw new Error('invalid-reminder-date');
+    await requestNotificationAccess();const id=notificationId(debt.id);await LocalNotifications.cancel({notifications:[{id}]});
+    return LocalNotifications.schedule({notifications:[{id,title:'תזכורת חוב · '+String(debt.name||'פנקס').slice(0,60),body:'הגיע הזמן לבדוק את החוב שרשום בפנקס.',schedule:{at,allowWhileIdle:true},channelId:'pinkas-reminders',autoCancel:true,extra:{debtId:String(debt.id)}}]});
+  },
+  async cancelReminder(rawId){if(!native)return;await LocalNotifications.cancel({notifications:[{id:notificationId(rawId)}]});},
+  async cancelAllReminders(){if(!native)return;const pending=await LocalNotifications.getPending(),ids=(pending.notifications||[]).map(n=>({id:n.id}));if(ids.length)await LocalNotifications.cancel({notifications:ids});},
+  async shareBackup(contents,filename){
+    if(!native)throw new Error('native-share-unavailable');
+    await Filesystem.writeFile({path:filename,data:contents,directory:Directory.Cache,recursive:true});
+    const file=await Filesystem.getUri({directory:Directory.Cache,path:filename});
+    await Share.share({title:'גיבוי נתוני פנקס',text:'קובץ גיבוי של פנקס',files:[file.uri],dialogTitle:'שיתוף גיבוי'});
+  }
+};
+window.PinkasNative=services;window.pinkasNativeReady=Promise.resolve(services);
+if(native){App.addListener('backButton',()=>{const event=new CustomEvent('pinkas:back',{cancelable:true});window.dispatchEvent(event);if(!event.defaultPrevented)void App.exitApp();});}
 </script>
 </body>
 </html>
