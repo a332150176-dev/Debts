@@ -47,9 +47,9 @@ jobs:
               checked = 0
               for index, match in enumerate(scripts):
                   attrs, source = match.group(1), match.group(2)
-                  if re.search(r"\\bsrc\\s*=", attrs) or not source.strip():
+                  if "src=" in attrs or not source.strip():
                       continue
-                  suffix = ".mjs" if re.search(r"type=[\\"']module[\\"']", attrs) else ".js"
+                  suffix = ".mjs" if 'type="module"' in attrs or "type='module'" in attrs else ".js"
                   path = pathlib.Path(folder) / f"inline-{index}{suffix}"
                   path.write_text(source, encoding="utf-8")
                   subprocess.run(["node", "--check", str(path)], check=True)
