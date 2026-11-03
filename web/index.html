@@ -368,7 +368,7 @@ const services={
   async scheduleReminder(debt){
     if(!native)return;const at=new Date(debt.reminderAt);if(Number.isNaN(at.getTime())||at<=new Date())throw new Error('invalid-reminder-date');
     await requestNotificationAccess();const id=notificationId(debt.id);await LocalNotifications.cancel({notifications:[{id}]});
-    return LocalNotifications.schedule({notifications:[{id,title:'תזכורת חוב · '+String(debt.name||'פנקס').slice(0,60),body:'הגיע הזמן לבדוק את החוב שרשום בפנקס.',schedule:{at,allowWhileIdle:true},channelId:'pinkas-reminders',autoCancel:true,extra:{debtId:String(debt.id)}}]});
+    return LocalNotifications.schedule({notifications:[{id,title:'תזכורת חוב · '+String(debt.name||'פנקס').slice(0,60),body:'הגיע הזמן לבדוק את החוב שרשום בפנקס.',schedule:{at,allowWhileIdle:true},isExactNotification:true,isExactMandatory:true,channelId:'pinkas-reminders',autoCancel:true,extra:{debtId:String(debt.id)}}]});
   },
   async cancelReminder(rawId){if(!native)return;await LocalNotifications.cancel({notifications:[{id:notificationId(rawId)}]});},
   async cancelAllReminders(){if(!native)return;const pending=await LocalNotifications.getPending(),ids=(pending.notifications||[]).map(n=>({id:n.id}));if(ids.length)await LocalNotifications.cancel({notifications:ids});},
