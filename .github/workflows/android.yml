@@ -37,6 +37,25 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Build offline web app
         run: npm run build
+      - name: Validate inline JavaScript
+        run: |
+          python3 - <<'PY'
+          import pathlib, re, subprocess, tempfile
+          html = pathlib.Path("web/index.html").read_text(encoding="utf-8")
+          scripts = list(re.finditer(r"<script([^>]*)>(.*?)</script>", html, re.S))
+          with tempfile.TemporaryDirectory() as folder:
+              checked = 0
+              for index, match in enumerate(scripts):
+                  attrs, source = match.group(1), match.group(2)
+                  if re.search(r"\\bsrc\\s*=", attrs) or not source.strip():
+                      continue
+                  suffix = ".mjs" if re.search(r"type=[\\"']module[\\"']", attrs) else ".js"
+                  path = pathlib.Path(folder) / f"inline-{index}{suffix}"
+                  path.write_text(source, encoding="utf-8")
+                  subprocess.run(["node", "--check", str(path)], check=True)
+                  checked += 1
+              print(f"Validated {checked} inline JavaScript blocks.")
+          PY
       - name: Generate Android project
         run: npx cap add android
       - name: Sync app with Android
