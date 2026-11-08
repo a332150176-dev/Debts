@@ -1,6 +1,6 @@
 {
   "appId": "il.co.pinkas.debts",
-  "appName": "פנקס - ניהול חובות",
+  "appName": "פנקס",
   "webDir": "dist",
   "server": {
     "androidScheme": "https"
