@@ -228,6 +228,7 @@ h1{letter-spacing:-.065em}
   const initial=[];
   const $=id=>document.getElementById(id);
   const fmt=n=>new Intl.NumberFormat('he-IL',{maximumFractionDigits:2}).format(Number(n)||0);
+  const localDateString=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const dateOnly=s=>{if(!s)return null;const d=new Date(s+'T12:00:00');return Number.isNaN(d.getTime())?null:d;};
   const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d;};
   const daysUntil=s=>{const d=dateOnly(s);if(!d)return null;return Math.round((d-today())/86400000);};
@@ -266,7 +267,7 @@ h1{letter-spacing:-.065em}
     $('paidInput').previousElementSibling.textContent=editing?'כבר שולם (החזרים נשמרים בנפרד)':'כבר שולם (₪)';
   }
   function resetAddForm(){$('debtForm').reset();$('paidInput').value='0';$('reminderInput').value='';syncDebtDirectionUI();setAddFormMode(false);try{localStorage.removeItem(DRAFT_KEY);}catch{}}
-  function addDebtFromForm(data){const amount=Number(data.amount),paid=Number(data.paid||0),reminderDate=data.reminderAt?new Date(data.reminderAt):null;if(!data.name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||paid>amount||(data.reminderAt&&(!reminderDate||Number.isNaN(reminderDate.getTime())||reminderDate<=new Date())))return null;const d={id:Date.now(),name:data.name,direction:data.direction,amount,paid,date:data.date||'',purpose:data.purpose,notes:data.notes,reminderAt:reminderDate?reminderDate.toISOString():'',tone:['coral','blue','green','yellow'][debts.length%4],payments:[]};if(paid>0)d.payments.push({amount:paid,date:new Date().toISOString().slice(0,10),note:'סכום ששולם בעת יצירת הרשומה'});if(balance(d)<=0)d.completedAt=new Date().toISOString();debts.push(d);save();updateTotals();try{localStorage.removeItem(DRAFT_KEY);}catch{}return d;}
+  function addDebtFromForm(data){const amount=Number(data.amount),paid=Number(data.paid||0),reminderDate=data.reminderAt?new Date(data.reminderAt):null;if(!data.name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||paid>amount||(data.reminderAt&&(!reminderDate||Number.isNaN(reminderDate.getTime())||reminderDate<=new Date())))return null;const d={id:Date.now(),name:data.name,direction:data.direction,amount,paid,date:data.date||'',purpose:data.purpose,notes:data.notes,reminderAt:reminderDate?reminderDate.toISOString():'',tone:['coral','blue','green','yellow'][debts.length%4],payments:[]};if(paid>0)d.payments.push({amount:paid,date:localDateString(),note:'סכום ששולם בעת יצירת הרשומה'});if(balance(d)<=0)d.completedAt=new Date().toISOString();debts.push(d);save();updateTotals();try{localStorage.removeItem(DRAFT_KEY);}catch{}return d;}
   function updateDebtFromForm(d,data){
     const amount=Number(data.amount),paid=Number(d.paid)||0;
     const reminderDate=data.reminderAt?new Date(data.reminderAt):null;
@@ -385,10 +386,10 @@ h1{letter-spacing:-.065em}
       openDebtDetails(d);showToast('התזכורת בוטלה.');
     }
   });
-  $('paymentForm').addEventListener('submit',e=>{e.preventDefault();const d=debts.find(x=>x.id===payingId);if(!d)return;const rest=balance(d),num=Number($('paymentAmount').value);if(!Number.isFinite(num)||num<=0||num>rest+0.005){showToast('הזן סכום חיובי שאינו גדול מהיתרה.');return;}d.paid=Math.min(Number(d.amount),Number(d.paid)+num);if(!Array.isArray(d.payments))d.payments=[];d.payments.push({amount:num,date:new Date().toISOString().slice(0,10),note:$('paymentNote').value.trim()});const closed=isClosed(d);if(closed){d.completedAt=new Date().toISOString();delete d.reminderAt;if(window.PinkasNative?.isNative())void window.pinkasNativeReady.then(()=>window.PinkasNative.cancelReminder(d.id)).catch(()=>{});}save();updateTotals();closeModal('payBackdrop');renderList();showToast(closed?'החוב שולם במלואו והועבר להיסטוריית חובות.':'ההחזר נשמר והיתרה עודכנה.');if(closed&&view==='active')showToast('החוב נסגר ועבר להיסטוריית חובות.');payingId=null;});
+  $('paymentForm').addEventListener('submit',e=>{e.preventDefault();const d=debts.find(x=>x.id===payingId);if(!d)return;const rest=balance(d),num=Number($('paymentAmount').value);if(!Number.isFinite(num)||num<=0||num>rest+0.005){showToast('הזן סכום חיובי שאינו גדול מהיתרה.');return;}d.paid=Math.min(Number(d.amount),Number(d.paid)+num);if(!Array.isArray(d.payments))d.payments=[];d.payments.push({amount:num,date:localDateString(),note:$('paymentNote').value.trim()});const closed=isClosed(d);if(closed){d.completedAt=new Date().toISOString();delete d.reminderAt;if(window.PinkasNative?.isNative())void window.pinkasNativeReady.then(()=>window.PinkasNative.cancelReminder(d.id)).catch(()=>{});}save();updateTotals();closeModal('payBackdrop');renderList();showToast(closed?'החוב שולם במלואו והועבר להיסטוריית חובות.':'ההחזר נשמר והיתרה עודכנה.');if(closed&&view==='active')showToast('החוב נסגר ועבר להיסטוריית חובות.');payingId=null;});
   $('exportBackup').addEventListener('click',async()=>{
     try{
-      const payload={format:'pinkas-debts-backup',version:1,exportedAt:new Date().toISOString(),debts},contents=JSON.stringify(payload,null,2),filename='pinkas-backup-'+new Date().toISOString().slice(0,10)+'.json';
+      const payload={format:'pinkas-debts-backup',version:1,exportedAt:new Date().toISOString(),debts},contents=JSON.stringify(payload,null,2),filename='pinkas-backup-'+localDateString()+'.json';
       if(window.PinkasNative?.isNative()){await window.pinkasNativeReady;await window.PinkasNative.shareBackup(contents,filename);showToast('בחר היכן לשמור או עם מי לשתף את הגיבוי.');return;}
       const file=new File([contents],'pinkas-backup.json',{type:'application/json'});
       if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({title:'גיבוי פנקס',files:[file]});showToast('הגיבוי נשלח לשיתוף.');}
