@@ -153,7 +153,7 @@ h1{letter-spacing:-.065em}
 .reminder-box .reminder-actions{display:flex;gap:8px;margin-top:9px}.reminder-box button{flex:1;min-height:39px;border:0;border-radius:10px;padding:8px;font-size:11px;font-weight:900}
 .reminder-save{background:var(--ink);color:white}.reminder-clear{background:var(--paper2);color:var(--ink)}
 .detail-actions{display:flex;gap:8px;margin-top:15px}.detail-actions button{flex:1;min-height:42px;border:0;border-radius:11px;padding:9px;font-size:11px;font-weight:900}
-.detail-delete{background:#f3d1c8;color:#8f3929}.detail-pay{background:var(--ink);color:white}
+.detail-delete{background:#f3d1c8;color:#8f3929}.detail-pay{background:var(--ink);color:white}.detail-edit{background:var(--acid);color:var(--ink)}
 @media(max-width:520px){.app{padding-top:8px}.brand{font-size:16px}.topline{padding-bottom:9px}.top-meta .date-label{display:none}.overview{margin-top:10px}.debt-row{min-height:58px;padding:11px 13px}.debt-row .row-name{font-size:13px}.debt-row .row-amount{font-size:16px}}
 @media(max-width:360px){.brand{font-size:15px}.debt-row .row-name{font-size:12px}}
 </style>
@@ -235,7 +235,7 @@ h1{letter-spacing:-.065em}
   try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY));debts=Array.isArray(saved)?saved:initial;}catch{debts=initial;}
   // Migrate old prototype data safely, and ensure fully repaid records have a closure date.
   debts=debts.map(d=>({...d,payments:Array.isArray(d.payments)?d.payments:[],tone:d.tone||'yellow',...(Number(d.paid)>=Number(d.amount)&&!d.completedAt?{completedAt:new Date().toISOString()}: {})}));
-  let view='active',filter='all',payingId=null,toastTimer;
+  let view='active',filter='all',payingId=null,editingId=null,toastTimer;
   function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(debts));}catch{showToast('הדפדפן לא אפשר שמירה מקומית.');}}
   function balance(d){return Math.max(0,Number(d.amount)-Number(d.paid));}
   function isClosed(d){return balance(d)<=0.005;}
@@ -256,11 +256,41 @@ h1{letter-spacing:-.065em}
   function addFormHasContent(d){return !!(d.name||d.amount||d.date||Number(d.paid)>0||d.purpose||d.reminderAt||d.notes);}
   function persistAddDraft(d){try{if(addFormHasContent(d))localStorage.setItem(DRAFT_KEY,JSON.stringify(d));else localStorage.removeItem(DRAFT_KEY);}catch{}}
   function restoreAddDraft(){try{const d=JSON.parse(localStorage.getItem(DRAFT_KEY)||'null');if(!d||typeof d!=='object')return;$('personInput').value=d.name||'';$('directionInput').value=d.direction==='in'?'in':'out';$('amountInput').value=d.amount||'';$('paidInput').value=d.paid??'0';$('dateInput').value=d.date||'';$('purposeInput').value=d.purpose||'';$('reminderInput').value=d.reminderAt||'';$('notesInput').value=d.notes||'';}catch{}}
-  function resetAddForm(){$('debtForm').reset();$('paidInput').value='0';$('reminderInput').value='';try{localStorage.removeItem(DRAFT_KEY);}catch{}}
+  function setAddFormMode(editing){
+    $('addTitle').textContent=editing?'עריכת חוב.':'מוסיפים לפנקס.';
+    $('addBackdrop').querySelector('.modal-kicker').textContent=editing?'עדכון רשומה / 03':'רשומה חדשה / 03';
+    $('debtForm').querySelector('button[type="submit"]').textContent=editing?'שמירת השינויים ↙':'שמירת הרשומה ↙';
+    $('addBackdrop').querySelector('[data-close="addBackdrop"]').textContent=editing?'ביטול':'×';
+    $('paidInput').disabled=editing;
+    $('paidInput').previousElementSibling.textContent=editing?'כבר שולם (החזרים נשמרים בנפרד)':'כבר שולם (₪)';
+  }
+  function resetAddForm(){$('debtForm').reset();$('paidInput').value='0';$('reminderInput').value='';setAddFormMode(false);try{localStorage.removeItem(DRAFT_KEY);}catch{}}
   function addDebtFromForm(data){const amount=Number(data.amount),paid=Number(data.paid||0),reminderDate=data.reminderAt?new Date(data.reminderAt):null;if(!data.name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||paid>amount||(data.reminderAt&&(!reminderDate||Number.isNaN(reminderDate.getTime())||reminderDate<=new Date())))return null;const d={id:Date.now(),name:data.name,direction:data.direction,amount,paid,date:data.date||'',purpose:data.purpose,notes:data.notes,reminderAt:reminderDate?reminderDate.toISOString():'',tone:['coral','blue','green','yellow'][debts.length%4],payments:[]};if(paid>0)d.payments.push({amount:paid,date:new Date().toISOString().slice(0,10),note:'סכום ששולם בעת יצירת הרשומה'});if(balance(d)<=0)d.completedAt=new Date().toISOString();debts.push(d);save();updateTotals();try{localStorage.removeItem(DRAFT_KEY);}catch{}return d;}
+  function updateDebtFromForm(d,data){
+    const amount=Number(data.amount),paid=Number(d.paid)||0;
+    const reminderDate=data.reminderAt?new Date(data.reminderAt):null;
+    if(!data.name||!Number.isFinite(amount)||amount<=0||amount+0.005<paid||
+       (data.reminderAt&&(!reminderDate||Number.isNaN(reminderDate.getTime())||reminderDate<=new Date())))return false;
+    d.name=data.name;
+    d.direction=data.direction==='in'?'in':'out';
+    d.amount=amount;
+    d.date=data.date||'';
+    d.purpose=data.purpose;
+    d.notes=data.notes;
+    if(balance(d)<=0.005){d.completedAt=d.completedAt||new Date().toISOString();d.reminderAt='';}
+    else{delete d.completedAt;d.reminderAt=reminderDate?reminderDate.toISOString():'';}
+    save();updateTotals();
+    return true;
+  }
   function autoSaveAddForm(){const data=readAddForm();if(!addFormHasContent(data)){try{localStorage.removeItem(DRAFT_KEY);}catch{}return;}const d=addDebtFromForm(data);if(d){resetAddForm();renderList();if(d.reminderAt)void scheduleNativeReminder(d).catch(()=>showToast('החוב נשמר, אך התזכורת לא הופעלה. בדוק הרשאות התראות.'));showToast('הרשומה נשמרה אוטומטית גם בלי לחיצה על שמירה.');}else{persistAddDraft(data);showToast('הפרטים נשמרו כטיוטה ויחזרו כשתפתח חוב חדש.');}}
-  function openModal(id){if(id==='addBackdrop')restoreAddDraft();$(id).classList.add('open');document.body.style.overflow='hidden';const focus=$(id).querySelector('input:not([type=hidden])');setTimeout(()=>focus?.focus(),80);}
-  function closeModal(id){if(id==='addBackdrop'&&$(id).classList.contains('open'))autoSaveAddForm();$(id).classList.remove('open');if(!document.querySelector('.modal-backdrop.open'))document.body.style.overflow='';}
+  function openModal(id){if(id==='addBackdrop'&&editingId===null)restoreAddDraft();$(id).classList.add('open');document.body.style.overflow='hidden';const focus=$(id).querySelector('input:not([type=hidden]):not(:disabled)');setTimeout(()=>focus?.focus(),80);}
+  function closeModal(id){
+    if(id==='addBackdrop'&&$(id).classList.contains('open')){
+      if(editingId!==null){editingId=null;resetAddForm();}
+      else autoSaveAddForm();
+    }
+    $(id).classList.remove('open');if(!document.querySelector('.modal-backdrop.open'))document.body.style.overflow='';
+  }
   function setView(next){view=next;filter='all';document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b.dataset.filter==='all'));$('searchInput').value='';renderList();$('ledger').scrollIntoView({behavior:'smooth',block:'start'});}
   $('addTop')?.addEventListener('click',()=>openModal('addBackdrop'));$('dockAdd').addEventListener('click',()=>openModal('addBackdrop'));$('emptyAdd').addEventListener('click',()=>openModal('addBackdrop'));
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
@@ -269,7 +299,35 @@ h1{letter-spacing:-.065em}
   window.addEventListener('pinkas:back',e=>{const list=[...document.querySelectorAll('.modal-backdrop.open')];if(list.length){closeModal(list[list.length-1].id);e.preventDefault();return;}if(view==='history'){setView('active');e.preventDefault();}});
   document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>setView(b.dataset.view)));
   ['personInput','directionInput','amountInput','paidInput','dateInput','purposeInput','reminderInput','notesInput'].forEach(id=>{['input','change'].forEach(evt=>$(id).addEventListener(evt,()=>persistAddDraft(readAddForm())));});
-  $('debtForm').addEventListener('submit',e=>{e.preventDefault();const data=readAddForm(),amount=Number(data.amount),paid=Number(data.paid||0);if(!data.name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||paid>amount||(data.reminderAt&&new Date(data.reminderAt)<=new Date())){showToast('יש להזין שם וסכום תקינים; תזכורת, אם נבחרה, חייבת להיות בעתיד.');return;}const d=addDebtFromForm(data);if(!d){showToast('לא הצלחנו לשמור את הרשומה. בדוק את הפרטים.');return;}resetAddForm();closeModal('addBackdrop');setView(balance(d)<=0?'history':'active');if(d.reminderAt)void scheduleNativeReminder(d).catch(()=>showToast('החוב נשמר, אך התזכורת לא הופעלה. בדוק הרשאות התראות.'));showToast(balance(d)<=0?'החוב שולם במלואו ונוסף להיסטוריה.':'החוב נוסף לפנקס.');});
+  $('debtForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const data=readAddForm(),amount=Number(data.amount),paid=Number(data.paid||0);
+    if(!data.name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||
+       (editingId===null&&paid>amount)||
+       (editingId!==null&&(()=>{const current=debts.find(x=>String(x.id)===String(editingId));return !current||amount+0.005<(Number(current.paid)||0);})())||
+       (data.reminderAt&&new Date(data.reminderAt)<=new Date())){
+      showToast(editingId!==null?'בדוק את השם והסכום. הסכום החדש אינו יכול להיות נמוך מהסכום שכבר שולם.':'יש להזין שם וסכום תקינים; תזכורת, אם נבחרה, חייבת להיות בעתיד.');
+      return;
+    }
+    if(editingId!==null){
+      const d=debts.find(x=>String(x.id)===String(editingId));
+      if(!d||!updateDebtFromForm(d,data)){showToast('לא הצלחנו לעדכן את החוב. בדוק את הפרטים.');return;}
+      const completed=isClosed(d),reminderAt=d.reminderAt,id=d.id;
+      closeModal('addBackdrop');
+      renderList();setView(completed?'history':'active');
+      if(window.PinkasNative?.isNative()){
+        try{await window.pinkasNativeReady;if(reminderAt)await window.PinkasNative.scheduleReminder({id,name:d.name,reminderAt});else await window.PinkasNative.cancelReminder(id);}
+        catch{showToast('החוב עודכן, אך לא הצלחנו לעדכן את ההתראה. בדוק את הרשאות Android.');}
+      }
+      showToast('פרטי החוב עודכנו בהצלחה.');
+      return;
+    }
+    const d=addDebtFromForm(data);
+    if(!d){showToast('לא הצלחנו לשמור את הרשומה. בדוק את הפרטים.');return;}
+    resetAddForm();closeModal('addBackdrop');setView(balance(d)<=0?'history':'active');
+    if(d.reminderAt)void scheduleNativeReminder(d).catch(()=>showToast('החוב נשמר, אך התזכורת לא הופעלה. בדוק הרשאות התראות.'));
+    showToast(balance(d)<=0?'החוב שולם במלואו ונוסף להיסטוריה.':'החוב נוסף לפנקס.');
+  });
   document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===b));renderList();}));
   $('searchInput').addEventListener('input',renderList);
   function localDateTimeValue(value){if(!value)return '';const d=new Date(value);if(Number.isNaN(d.getTime()))return '';return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}
@@ -282,7 +340,7 @@ h1{letter-spacing:-.065em}
     <div style="border-top:1px solid var(--line);padding-top:10px;font-weight:900;font-size:11px">היסטוריית החזרים</div>
     ${payments.length?payments.map(p=>`<div style="display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:9px 0;font-size:11px"><span>${escapeHTML(p.note||'החזר')} · ${safeDate(p.date)}</span><b>₪ ${fmt(p.amount)}</b></div>`).join(''):'<p style="font-size:11px;color:var(--muted)">עדיין לא נרשמו החזרים.</p>'}
     ${isClosed(d)?'<p style="font-size:10px;color:var(--green);font-weight:900;margin-top:12px">✓ החוב נסגר ועבר להיסטוריית החובות.</p>':''}
-    <div class="detail-actions">${isClosed(d)?'':`<button type="button" class="detail-pay" data-detail-action="pay" data-id="${escapeHTML(d.id)}">＋ רישום החזר</button>`}<button type="button" class="detail-delete" data-detail-action="delete" data-id="${escapeHTML(d.id)}">מחיקת חוב</button></div>`;
+    <div class="detail-actions"><button type="button" class="detail-edit" data-detail-action="edit" data-id="${escapeHTML(d.id)}">עריכת חוב</button>${isClosed(d)?'':`<button type="button" class="detail-pay" data-detail-action="pay" data-id="${escapeHTML(d.id)}">＋ רישום החזר</button>`}<button type="button" class="detail-delete" data-detail-action="delete" data-id="${escapeHTML(d.id)}">מחיקת חוב</button></div>`;
     openModal('detailsBackdrop');
   }
   function showPaymentFor(d){closeModal('detailsBackdrop');payingId=d.id;$('paymentIntro').textContent=`${d.name} · יתרה פתוחה: ₪ ${fmt(balance(d))}. ההחזר יירשם בהיסטוריה של החוב.`;$('paymentAmount').max=balance(d);$('paymentAmount').value='';$('paymentNote').value='';openModal('payBackdrop');}
@@ -290,6 +348,21 @@ h1{letter-spacing:-.065em}
   $('debtList').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const d=debts.find(x=>String(x.id)===b.dataset.id);if(d&&b.dataset.action==='details')openDebtDetails(d);});
   $('detailsBody').addEventListener('click',async e=>{
     const b=e.target.closest('[data-detail-action]');if(!b)return;const d=debts.find(x=>String(x.id)===b.dataset.id);if(!d)return;const action=b.dataset.detailAction;
+    if(action==='edit'){
+      closeModal('detailsBackdrop');
+      editingId=d.id;
+      $('personInput').value=d.name||'';
+      $('directionInput').value=d.direction==='in'?'in':'out';
+      $('amountInput').value=String(d.amount??'');
+      $('paidInput').value=String(Number(d.paid)||0);
+      $('dateInput').value=d.date||'';
+      $('purposeInput').value=d.purpose||'';
+      $('notesInput').value=d.notes||'';
+      $('reminderInput').value=d.reminderAt&&new Date(d.reminderAt)>new Date()?localDateTimeValue(d.reminderAt):'';
+      setAddFormMode(true);
+      openModal('addBackdrop');
+      return;
+    }
     if(action==='pay'){showPaymentFor(d);return;}
     if(action==='delete'){
       if(!confirm(`למחוק את החוב של ${d.name}? לא ניתן לשחזר את הרשומה לאחר המחיקה.`))return;
