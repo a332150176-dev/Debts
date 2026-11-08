@@ -82,7 +82,7 @@ jobs:
           source = path.read_text(encoding="utf-8")
           if "pinkas-release-key.p12" in source or "signingConfigs.pinkas" in source:
               raise SystemExit("Persistent signing configuration already exists; refusing to patch twice.")
-          android = re.search(r"\\bandroid\\s*\\{", source)
+          android = re.search(r"\bandroid\s*\{", source)
           if not android:
               raise SystemExit("Could not find the Android Gradle configuration block.")
           source = source[:android.end()] + """
@@ -96,7 +96,7 @@ jobs:
                   }
               }
           """ + source[android.end():]
-          build_types = re.search(r"\\bbuildTypes\\s*\\{", source)
+          build_types = re.search(r"\bbuildTypes\s*\{", source)
           if not build_types:
               raise SystemExit("Could not find the Android buildTypes block.")
           source = source[:build_types.end()] + """
@@ -116,13 +116,17 @@ jobs:
           APK="android/app/build/outputs/apk/debug/app-debug.apk"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
           python3 - <<'PY'
+          import os
+          import re
           import subprocess
+          from pathlib import Path
           apk = "android/app/build/outputs/apk/debug/app-debug.apk"
+          apksigner = str(Path(os.environ["ANDROID_HOME"]) / "build-tools/36.0.0/apksigner")
           output = subprocess.check_output([
-              "$ANDROID_HOME/build-tools/36.0.0/apksigner", "verify", "--print-certs", apk
+              apksigner, "verify", "--print-certs", apk
           ], text=True)
           expected = "efec6e21c2bbb351553e9e0eebbd1f29e1e1cd499a0ff5e98219a03e12a6e443"
-          actual = output.lower().replace(":", "").replace(" ", "")
+          actual = re.sub(r"[^0-9a-f]", "", output.lower())
           if expected not in actual:
               raise SystemExit("APK certificate does not match the fixed Pinkas signing certificate.")
           print("APK certificate fingerprint matches the persistent Pinkas key.")
