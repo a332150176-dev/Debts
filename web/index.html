@@ -394,7 +394,12 @@ h1{letter-spacing:-.065em}
       const file=new File([contents],'pinkas-backup.json',{type:'application/json'});
       if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({title:'גיבוי פנקס',files:[file]});showToast('הגיבוי נשלח לשיתוף.');}
       else{const blob=new Blob([contents],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);showToast('קובץ הגיבוי נוצר.');}
-    }catch(error){if(error?.name!=='AbortError')showToast('לא הצלחנו לשתף את קובץ הגיבוי. נסה שוב.');}
+    }catch(error){
+      const message=String(error?.message||error||'');
+      if(error?.name==='AbortError'||/share canceled/i.test(message)){showToast('שיתוף הגיבוי בוטל.');return;}
+      console.error('Pinkas backup export failed:',error);
+      showToast('לא הצלחנו ליצור או לשתף את קובץ הגיבוי. נסה שוב.');
+    }
   });
   $('importBackup').addEventListener('click',()=>$('backupFile').click());
   $('backupFile').addEventListener('change',async e=>{
@@ -431,7 +436,7 @@ import { App } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { Share } from '@capacitor/share';
-import { Directory, Filesystem } from '@capacitor/filesystem';
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem';
 const native=Capacitor.isNativePlatform();
 function notificationId(raw){const value=String(raw);let hash=2166136261;for(let i=0;i<value.length;i++){hash^=value.charCodeAt(i);hash=Math.imul(hash,16777619);}return (hash>>>0)%2000000000+1;}
 async function requestNotificationAccess(){
@@ -451,9 +456,15 @@ const services={
   async cancelAllReminders(){if(!native)return;const pending=await LocalNotifications.getPending(),ids=(pending.notifications||[]).map(n=>({id:n.id}));if(ids.length)await LocalNotifications.cancel({notifications:ids});},
   async shareBackup(contents,filename){
     if(!native)throw new Error('native-share-unavailable');
-    await Filesystem.writeFile({path:filename,data:contents,directory:Directory.Cache,recursive:true});
-    const file=await Filesystem.getUri({directory:Directory.Cache,path:filename});
-    await Share.share({title:'גיבוי נתוני פנקס',text:'קובץ גיבוי של פנקס',files:[file.uri],dialogTitle:'שיתוף גיבוי'});
+    // Capacitor's Android FileProvider exposes its named cache folder.
+    // Keep exports inside it and create the directory before sharing.
+    const path=`my_cache_images/${filename}`;
+    await Filesystem.writeFile({path,data:contents,directory:Directory.Cache,encoding:Encoding.UTF8,recursive:true});
+    const file=await Filesystem.getUri({directory:Directory.Cache,path});
+    if(!file?.uri||!file.uri.startsWith('file://'))throw new Error('backup-file-uri-unavailable');
+    const saved=await Filesystem.readFile({path,directory:Directory.Cache,encoding:Encoding.UTF8});
+    if(saved.data!==contents)throw new Error('backup-file-verification-failed');
+    await Share.share({title:'גיבוי נתוני פנקס',text:'קובץ גיבוי של פנקס',url:file.uri,dialogTitle:'שיתוף קובץ גיבוי'});
   }
 };
 window.PinkasNative=services;window.pinkasNativeReady=Promise.resolve(services);
